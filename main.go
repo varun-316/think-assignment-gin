@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
+	"log"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -10,26 +10,34 @@ import (
 
 const (
 	HOST     = "localhost"
-	PORT     = 5432
+	PORT     = "5432"
 	USER     = "postgres"
 	PASSWORD = "admin"
 	DB       = "think_assignment_db"
 )
 
+type Test struct {
+	TestRes string `json:"test"`
+}
+
 func main() {
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", HOST, PORT, USER, PASSWORD, DB)
+	psqlInfo := "host=" + HOST + " port=" + PORT + " user=" + USER + " password=" + PASSWORD + " dbname=" + DB + " sslmode=disable"
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err.Error())
 	}
 	defer db.Close()
 	err = db.Ping()
 	if err != nil {
-		panic(err.Error())
+		log.Fatal(err.Error())
 	}
 
-	fmt.Println("Connected successfully")
-
 	router := gin.Default()
+
+	router.GET("/details/:username", func(c *gin.Context) {
+		getDetails(c, db)
+	})
+
 	router.Run(":3000")
+
 }
